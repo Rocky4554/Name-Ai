@@ -1,25 +1,8 @@
-import { NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import NextAuth from "next-auth";
+import { authConfig } from "./auth.config";
 
-export async function middleware(request) {
-    const token = await getToken({ req: request });
-    const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
-    const isDashboard = request.nextUrl.pathname.startsWith('/dashboard');
-    const isDomain = request.nextUrl.pathname.startsWith('/domain');
-
-    // Redirect to dashboard if user is authenticated and trying to access auth pages
-    if (isAuthPage && token) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
-
-    // Redirect to signin if user is not authenticated and trying to access protected pages
-    if ((isDashboard || isDomain) && !token) {
-        return NextResponse.redirect(new URL('/auth/signin', request.url));
-    }
-
-    return NextResponse.next();
-}
+export default NextAuth(authConfig).auth;
 
 export const config = {
-    matcher: ['/dashboard/:path*', '/auth/:path*', '/domain/:path*'],
+    matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'], // Standard V5 matcher
 };
