@@ -1,23 +1,29 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import * as React from "react";
+import { ThemeProvider as NextThemesProvider, useTheme as useNextTheme } from "next-themes";
 
-const ThemeContext = createContext();
-
-export const ThemeProvider = ({ children }) => {
-    const [theme, setTheme] = useState('dark');
-
-    useEffect(() => {
-        document.documentElement.classList.toggle('dark', theme === 'dark');
-    }, [theme]);
-
-    const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-
+export function ThemeProvider({ children, ...props }) {
     return (
-        <ThemeContext.Provider value={{ theme, toggleTheme }}>
+        <NextThemesProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+            {...props}
+        >
             {children}
-        </ThemeContext.Provider>
+        </NextThemesProvider>
     );
-};
+}
 
-export const useTheme = () => useContext(ThemeContext);
+// Wrap useTheme to provide a toggleTheme helper for compatibility if needed, 
+// though standard usage matches next-themes (theme, setTheme)
+export const useTheme = () => {
+    const context = useNextTheme();
+    // Add toggleTheme for backward compatibility just in case
+    const toggleTheme = () => {
+        context.setTheme(context.theme === 'dark' ? 'light' : 'dark');
+    };
+    return { ...context, toggleTheme };
+};

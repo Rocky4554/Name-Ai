@@ -1,12 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { User, LifeBuoy, Heart, Search, Menu, X } from "lucide-react";
+import Image from "next/image";
+import { User, LifeBuoy, Heart, Search, Menu, X, LogIn, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ModeToggle } from "@/components/ModeToggle";
 
-export default function Header() {
+export default function Header({ showThemeToggle = true, onMenuClick }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const pathname = usePathname();
 
     const navLinks = [
@@ -20,13 +29,22 @@ export default function Header() {
         <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/40">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
-                    {/* Logo */}
+
+                    {/* Updated Logo Section */}
                     <div className="flex-shrink-0 flex items-center">
                         <Link href="/" className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                                <span className="text-primary-foreground font-bold text-xl">N</span>
-                            </div>
-                            <span className="font-bold text-xl tracking-tight hidden sm:block">name.ai</span>
+                            <Image
+                                src="/logo.jpg"
+                                alt="Logo"
+                                width={45}  // 👈 change this to increase logo size anytime
+                                height={45}
+                                className="w-auto h-auto max-w-[130px] sm:max-w-[150px] md:max-w-[170px] transition-all duration-300"
+                                style={{ width: "auto", height: "auto" }} // keeps responsiveness
+                                priority
+                            />
+                            <span className="font-bold text-xl tracking-tight hidden sm:block">
+                                name.ai
+                            </span>
                         </Link>
                     </div>
 
@@ -46,9 +64,37 @@ export default function Header() {
 
                     {/* Actions */}
                     <div className="hidden md:flex items-center space-x-4">
-                        <button className="p-2 text-muted-foreground hover:text-primary transition-colors">
-                            <User size={20} />
-                        </button>
+                        <DropdownMenu open={isUserMenuOpen} onOpenChange={setIsUserMenuOpen}>
+                            <DropdownMenuTrigger asChild>
+                                <button
+                                    className="p-2 text-muted-foreground hover:text-primary transition-colors outline-none"
+                                    onMouseEnter={() => setIsUserMenuOpen(true)}
+                                >
+                                    <User size={20} />
+                                </button>
+                            </DropdownMenuTrigger>
+
+                            <DropdownMenuContent
+                                align="end"
+                                className="w-48"
+                                onMouseEnter={() => setIsUserMenuOpen(true)}
+                                onMouseLeave={() => setIsUserMenuOpen(false)}
+                            >
+                                <DropdownMenuItem asChild>
+                                    <Link href="/auth/signin" className="cursor-pointer flex items-center gap-2">
+                                        <LogIn className="w-4 h-4" />
+                                        <span>Login</span>
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                    <Link href="/auth/signup" className="cursor-pointer flex items-center gap-2">
+                                        <UserPlus className="w-4 h-4" />
+                                        <span>Signup</span>
+                                    </Link>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
                         <button className="p-2 text-muted-foreground hover:text-primary transition-colors">
                             <LifeBuoy size={20} />
                         </button>
@@ -58,6 +104,8 @@ export default function Header() {
                         <button className="p-2 text-muted-foreground hover:text-primary transition-colors">
                             <Search size={20} />
                         </button>
+
+                        {showThemeToggle && <ModeToggle />}
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -86,11 +134,13 @@ export default function Header() {
                                 {link.name}
                             </Link>
                         ))}
+
                         <div className="flex justify-around pt-4 border-t border-border mt-4">
-                            <button className="p-2 text-muted-foreground hover:text-primary"><User /></button>
+                            <Link href="/auth/signin" className="p-2 text-muted-foreground hover:text-primary"><User /></Link>
                             <button className="p-2 text-muted-foreground hover:text-primary"><LifeBuoy /></button>
                             <button className="p-2 text-muted-foreground hover:text-primary"><Heart /></button>
                             <button className="p-2 text-muted-foreground hover:text-primary"><Search /></button>
+                            {showThemeToggle && <ModeToggle />}
                         </div>
                     </div>
                 </div>
